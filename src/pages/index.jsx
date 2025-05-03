@@ -1,4 +1,5 @@
 import { render } from '@czechitas/render';
+import { useEffect, useState } from 'react';
 import { Header } from '../components/Header/header';
 import { Banner } from '../components/Banner/banner';
 import { Menu } from '../components/Menu/menu';
@@ -9,18 +10,39 @@ import { Footer } from '../components/Footer/footer';
 import '../global.css';
 import './index.css';
 
-document.querySelector('#root').innerHTML = render(
-  <div className="page">
-    <Header />
-    <main>
-      <Banner />
-      <Menu />
-      <Gallery />
-      <Contact />
-    </main>
-    <Footer />
-  </div>,
-);
+const IndexPage = () => {
+  const [drinks, setDrinks] = useState([]);
+
+  useEffect(() => {
+    const fetchDrinks = async () => {
+      try {
+        const response = await fetch('http://localhost:4000/api/drinks');
+        const data = await response.json();
+        setDrinks(data);
+      } catch (error) {
+        console.error('Chyba při načítání nápojů:', error);
+      }
+    };
+
+    fetchDrinks();
+  }, []);
+
+  return (
+    <div className="page">
+      <Header />
+      <main>
+        <Banner />
+        <Menu drinks={drinks} />
+        <Gallery />
+        <Contact />
+      </main>
+      <Footer />
+    </div>
+  );
+};
+
+document.querySelector('#root').innerHTML = render(<IndexPage />);
+
 requestAnimationFrame(() => {
   const navBtn = document.querySelector('.nav-btn');
   const navEl = document.querySelector('.rollout-nav');
